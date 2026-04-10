@@ -9,3 +9,14 @@ xgboost>=2.0
 tensorflow>=2.13
 optuna>=3.3
 plotly>=5.18
+nbformat>=4.2.0
+ipykernel>=6.0
+jupyterlab>=3.0
+
+# MLOps
+mlflow>=2.10
+dvc>=3.0
+dvc-s3>=3.0
+dagshub>=0.3
+python-dotenv>=1.0
+pyyaml>=6.0

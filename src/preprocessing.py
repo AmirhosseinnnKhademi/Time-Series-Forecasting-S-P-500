@@ -227,7 +227,11 @@ def prepare_lstm_data(
     target_idx = 0  # Close is always index 0
     X_train, y_train = create_sequences(train_s, seq_len, target_idx)
     X_val,   y_val   = create_sequences(val_s,   seq_len, target_idx)
-    X_test,  y_test  = create_sequences(test_s,  seq_len, target_idx)
+    # Prefix test sequences with the last seq_len rows of val so that the
+    # first test prediction starts at test_df.index[0] — matching the
+    # ARIMA / XGBoost test window exactly (no dates consumed as warm-up).
+    combined_for_test = np.concatenate([val_s[-seq_len:], test_s], axis=0)
+    X_test,  y_test  = create_sequences(combined_for_test, seq_len, target_idx)
 
     return dict(
         X_train=X_train, X_val=X_val, X_test=X_test,

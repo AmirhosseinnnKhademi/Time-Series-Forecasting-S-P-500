@@ -1,0 +1,133 @@
+schema: '2.0'
+stages:
+  data_load:
+    cmd: python src/pipeline/data_load.py
+    deps:
+    - path: src/data_load.py
+      hash: md5
+      md5: 4ef1acdb8883fce2394ff675249bdf8c
+      size: 1314
+    - path: src/pipeline/data_load.py
+      hash: md5
+      md5: b3fb2c47856275ee3a06bea4cd8e790e
+      size: 1059
+    params:
+      params.yaml:
+        start_years_back: 4
+        ticker: AAPL
+    outs:
+    - path: data/raw.csv
+      hash: md5
+      md5: c3be0b075adc91ae19448e52200dd8da
+      size: 95660
+  preprocess:
+    cmd: python src/pipeline/preprocess.py
+    deps:
+    - path: data/raw.csv
+      hash: md5
+      md5: c3be0b075adc91ae19448e52200dd8da
+      size: 95660
+    - path: src/pipeline/preprocess.py
+      hash: md5
+      md5: 5592488154dbaf5541e39ff9e6480642
+      size: 3272
+    - path: src/preprocessing.py
+      hash: md5
+      md5: 1bacfa1afed30cb5ae7ce2b1258c3bef
+      size: 8591
+    params:
+      params.yaml:
+        seq_len: 60
+        target_col: Close
+        train_ratio: 0.7
+        val_ratio: 0.15
+    outs:
+    - path: data/processed/
+      hash: md5
+      md5: 8c2920955dfbb4ee367769a41f50d4c1.dir
+      size: 9477048
+      nfiles: 3
+  train:
+    cmd: python src/pipeline/train.py
+    deps:
+    - path: data/processed/
+      hash: md5
+      md5: 8c2920955dfbb4ee367769a41f50d4c1.dir
+      size: 9477048
+      nfiles: 3
+    - path: src/evaluation.py
+      hash: md5
+      md5: 87949d658d127d96438db3fb71dda897
+      size: 4652
+    - path: src/pipeline/train.py
+      hash: md5
+      md5: a98260e5945be634d915b5a95a062ff2
+      size: 7952
+    - path: src/training.py
+      hash: md5
+      md5: 12731aeffe67ac5c02d79de91ce620b3
+      size: 4953
+    params:
+      params.yaml:
+        arima:
+          p: 1
+          d: 1
+          q: 1
+        lstm:
+          units_1: 64
+          units_2: 32
+          dropout: 0.2
+          learning_rate: 0.001
+          epochs: 100
+          batch_size: 32
+          patience: 15
+        xgboost:
+          n_estimators: 500
+          max_depth: 6
+          learning_rate: 0.05
+          subsample: 0.8
+          colsample_bytree: 0.8
+          min_child_weight: 3
+          reg_alpha: 0.01
+          reg_lambda: 1.0
+    outs:
+    - path: models/
+      hash: md5
+      md5: 8288d618b522a5ce45b62ab6e2345b5a.dir
+      size: 2357161
+      nfiles: 3
+    - path: reports/metrics.json
+      hash: md5
+      md5: 7b595823340dad6dc6f9aa8e3ea596d7
+      size: 462
+  evaluate:
+    cmd: python src/pipeline/evaluate.py
+    deps:
+    - path: data/processed/
+      hash: md5
+      md5: 8c2920955dfbb4ee367769a41f50d4c1.dir
+      size: 9477048
+      nfiles: 3
+    - path: models/
+      hash: md5
+      md5: 8288d618b522a5ce45b62ab6e2345b5a.dir
+      size: 2357161
+      nfiles: 3
+    - path: src/evaluation.py
+      hash: md5
+      md5: 87949d658d127d96438db3fb71dda897
+      size: 4652
+    - path: src/pipeline/evaluate.py
+      hash: md5
+      md5: dfb2071ee139f6112c8f1f3efaf68f74
+      size: 4491
+    - path: src/visualization.py
+      hash: md5
+      md5: 11356dcc24ac80c13f71f684897b76fa
+      size: 14040
+    outs:
+    - path: reports/plots/
+      hash: md5
+      md5: 44f0b97c12c59203cdb087c7d9e1a8f5.dir
+      size: 931648
+      nfiles: 7

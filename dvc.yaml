@@ -1,0 +1,59 @@
+stages:
+
+  # ── Stage 1: Download raw OHLCV data ────────────────────────────────────
+  data_load:
+    cmd: python src/pipeline/data_load.py
+    deps:
+      - src/pipeline/data_load.py
+      - src/data_load.py
+    params:
+      - ticker
+      - start_years_back
+    outs:
+      - data/raw.csv
+
+  # ── Stage 2: Feature engineering + train/val/test split ─────────────────
+  preprocess:
+    cmd: python src/pipeline/preprocess.py
+    deps:
+      - src/pipeline/preprocess.py
+      - src/preprocessing.py
+      - data/raw.csv
+    params:
+      - target_col
+      - seq_len
+      - train_ratio
+      - val_ratio
+    outs:
+      - data/processed/
+
+  # ── Stage 3: Train all models + log to MLflow ────────────────────────────
+  train:
+    cmd: python src/pipeline/train.py
+    deps:
+      - src/pipeline/train.py
+      - src/training.py
+      - src/evaluation.py
+      - data/processed/
+    params:
+      - arima
+      - xgboost
+      - lstm
+    outs:
+      - models/
+    metrics:
+      - reports/metrics.json:
+          cache: false
+
+  # ── Stage 4: Save evaluation plots ───────────────────────────────────────
+  evaluate:
+    cmd: python src/pipeline/evaluate.py
+    deps:
+      - src/pipeline/evaluate.py
+      - src/visualization.py
+      - src/evaluation.py
+      - models/
+      - data/processed/
+    outs:
+      - reports/plots/:
+          cache: false

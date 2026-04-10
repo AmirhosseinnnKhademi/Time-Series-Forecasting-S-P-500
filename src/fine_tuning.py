@@ -56,6 +56,12 @@ def tune_arima(
         except Exception:
             continue
 
+    if not records:
+        raise RuntimeError(
+            "All ARIMA fits failed. "
+            "Check that p_values/d_values/q_values are lists of integers "
+            "(e.g. p_values=[0,1,2]), not a pandas Series."
+        )
     results_df = pd.DataFrame(records).sort_values("AIC").reset_index(drop=True)
     if verbose:
         print(f"\nBest order: ARIMA{best_order}  (AIC={best_aic:.2f})")
@@ -135,10 +141,12 @@ def tune_lstm(
     from tensorflow.keras import layers
     from tensorflow.keras.callbacks import EarlyStopping
 
-    if not show_progress:
-        optuna.logging.set_verbosity(optuna.logging.WARNING)
+    optuna.logging.set_verbosity(optuna.logging.WARNING)
 
     input_shape = X_train.shape[1:]
+
+    if show_progress:
+        print(f"LSTM Optuna tuning: {n_trials} trials × up to {max_epochs} epochs each …")
 
     def objective(trial):
         units_1 = trial.suggest_categorical("units_1", [32, 64, 128])
@@ -169,9 +177,15 @@ def tune_lstm(
             callbacks=[es],
             verbose=0,
         )
-        return min(history.history["val_loss"])
+        val_loss = min(history.history["val_loss"])
+        n_epochs = len(history.history["val_loss"])
+        if show_progress:
+            print(f"  Trial {trial.number:2d}  units=({units_1},{units_2})"
+                  f"  dropout={dropout:.2f}  lr={lr:.5f}  batch={batch:2d}"
+                  f"  val_loss={val_loss:.5f}  ({n_epochs} ep)")
+        return val_loss
 
     study = optuna.create_study(direction="minimize")
-    study.optimize(objective, n_trials=n_trials)
+    study.optimize(objective, n_trials=n_trials, show_progress_bar=show_progress)
     print(f"Best LSTM val_loss: {study.best_value:.6f}")
     return study.best_params, study

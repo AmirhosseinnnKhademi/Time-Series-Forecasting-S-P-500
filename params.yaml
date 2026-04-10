@@ -1,0 +1,38 @@
+# ── Data ──────────────────────────────────────────────────────────────────
+ticker: "AAPL"
+start_years_back: 4
+target_col: "Close"
+
+# ── Splits ────────────────────────────────────────────────────────────────
+train_ratio: 0.70
+val_ratio: 0.15
+
+# ── LSTM ──────────────────────────────────────────────────────────────────
+seq_len: 60
+
+# ── ARIMA ─────────────────────────────────────────────────────────────────
+arima:
+  p: 1
+  d: 1
+  q: 1
+
+# ── XGBoost ───────────────────────────────────────────────────────────────
+xgboost:
+  n_estimators: 500
+  max_depth: 6
+  learning_rate: 0.05
+  subsample: 0.8
+  colsample_bytree: 0.8
+  min_child_weight: 3
+  reg_alpha: 0.01
+  reg_lambda: 1.0
+
+# ── LSTM architecture ─────────────────────────────────────────────────────
+lstm:
+  units_1: 64
+  units_2: 32
+  dropout: 0.2
+  learning_rate: 0.001
+  epochs: 100
+  batch_size: 32
+  patience: 15

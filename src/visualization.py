@@ -213,7 +213,7 @@ def plot_candlestick(
     ticker: str = "^GSPC",
     last_n_days: int = 252,
     save_path: str | None = None,
-) -> None:
+):
     """Interactive Plotly candlestick with volume sub-chart."""
     try:
         import plotly.graph_objects as go
@@ -259,10 +259,7 @@ def plot_candlestick(
 
     if save_path:
         fig.write_html(save_path)
-    try:
-        fig.show(renderer="notebook")
-    except Exception:
-        fig.show()
+    return fig
 
 
 def plot_forecast_with_history(
@@ -362,7 +359,7 @@ def plot_forecast_interactive(
     dates=None,
     title: str = "Forecast vs Actual",
     save_path: str | None = None,
-) -> None:
+):
     """Interactive Plotly forecast chart."""
     try:
         import plotly.graph_objects as go
@@ -384,7 +381,4 @@ def plot_forecast_interactive(
 
     if save_path:
         fig.write_html(save_path)
-    try:
-        fig.show(renderer="notebook")
-    except Exception:
-        fig.show()
+    return fig

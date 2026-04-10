@@ -3,3 +3,17 @@
 __pycache__/
 *.pyc
 .ipynb_checkpoints/
+
+# Credentials — never commit these
+.env
+.dvc/config.local
+
+# Data and model artifacts tracked by DVC instead of git
+data/
+models/
+reports/
+!reports/metrics.json
+
+# DVC internal cache
+.dvc/cache/
+.dvc/tmp/
